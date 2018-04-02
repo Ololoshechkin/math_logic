@@ -27,16 +27,14 @@ class None : AnnotationInfo() {
     override fun toString() = "(Не доказано)"
 }
 
-data class NodeWithIndex(val node: NodeWrapper, val index: Int) {
-    override fun hashCode() = node.hashCode()
-    override fun equals(other: Any?) = other is NodeWithIndex && other.node == node
-}
+val indexByNode = hashMapOf<NodeWrapper, Int>()
+val indexByReasonNode = hashMapOf<NodeWrapper, Int>()
+val indexByAssumptionNode = hashMapOf<NodeWrapper, Int>()
 
-typealias Reason = NodeWithIndex
+typealias Reason = NodeWrapper
 
-val assumptions = hashSetOf<NodeWithIndex>()
-val trueExpressions = hashSetOf<NodeWithIndex>()
-val implications = hashMapOf<NodeWrapper, HashSet<Reason>>()
+val assumptions = hashSetOf<NodeWrapper>()
+val reasons = hashMapOf<NodeWrapper, HashSet<Reason>>()
 
 fun String.parser() = ExpressionParser(CommonTokenStream(ExpressionLexer(ANTLRInputStream(this))))
 
@@ -53,10 +51,7 @@ fun processHeader(header: String) {
                     .substring(0, assumptionsEnd)
                     .split(',')
                     .mapIndexed { id, ass ->
-                        NodeWithIndex(
-                                ass.parser().expression().node,
-                                id
-                        )
+                        ass.parser().expression().node.also { indexByAssumptionNode[it] = id }
                     }
     )
 }
@@ -73,6 +68,7 @@ fun isomorphismCheck(node: NodeWrapper, expectedNode: NodeWrapper, i: Int): Bool
         }
     }
     is Binary -> node is Binary
+            && node.opcode == expectedNode.opcode
             && isomorphismCheck(node.left, expectedNode.left, i)
             && isomorphismCheck(node.right, expectedNode.right, i)
     is Negation -> node is Negation && isomorphismCheck(node.child, expectedNode.child, i)
@@ -88,28 +84,34 @@ private fun checkAxiom(expr: NodeWrapper): AnnotationInfo? {
     return null
 }
 
+
 fun checkModusPonens(expr: NodeWrapper): AnnotationInfo? {
-    if (implications.containsKey(expr)) {
-        for (impl in implications[expr]!!) {
-            val reason = trueExpressions.find { it == impl }
-            if (reason != null)
-                return MP(impl.index, reason.index)
+    if (reasons.containsKey(expr)) {
+        for (reason in reasons[expr]!!) {
+            val reasonIndex = indexByNode[reason]
+            if (reasonIndex != null)
+                return MP(indexByReasonNode[reason]!!, indexByNode[reason]!!)
         }
-        return null
-    } else return null
+    }
+    return null
 }
 
-fun checkAssumption(expr: NodeWrapper) = assumptions
-        .find { it.node == expr }
-        ?.let { Assumption(it.index + 1) }
+fun checkAssumption(expr: NodeWrapper) =
+        if (assumptions.contains(expr))
+            Assumption(indexByAssumptionNode[expr]!! + 1)
+        else null
 
-fun setTrue(expr: NodeWrapper, index: Int) = trueExpressions.add(NodeWithIndex(expr, index))
+fun setTrue(expr: NodeWrapper, index: Int) {
+    indexByNode.putIfAbsent(expr, index)
+}
 
 fun tryAddToImplications(expr: NodeWrapper, index: Int) {
     if (expr is Implication) {
         val consequence = expr.right
-        implications.putIfAbsent(consequence, hashSetOf())
-        implications[consequence]!!.add(NodeWithIndex(expr.left, index))
+        val reason = expr.left
+        reasons.putIfAbsent(consequence, hashSetOf())
+        reasons[consequence]!!.add(reason)
+        indexByReasonNode[reason] = index
     }
 }
 

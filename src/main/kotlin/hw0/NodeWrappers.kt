@@ -1,6 +1,6 @@
 package hw0
 
-val hashes = hashMapOf<ArrayList<Int>, Int>()
+private val hashes = hashMapOf<ArrayList<Int>, Int>()
 
 open class NodeWrapper(val hash: Int) {
 
@@ -15,7 +15,7 @@ fun calcHash(arr: ArrayList<Int>): Int {
     return hashes[arr]!!
 }
 
-sealed class Binary(opcode: Int, val left: NodeWrapper, val right: NodeWrapper) : NodeWrapper(
+sealed class Binary(val opcode: Int, val left: NodeWrapper, val right: NodeWrapper) : NodeWrapper(
         hash= calcHash(arrayListOf(opcode, left.hash, right.hash))
 )
 class Disjunction(left: NodeWrapper, right: NodeWrapper) : Binary(1, left, right)
