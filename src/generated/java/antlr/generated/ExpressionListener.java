@@ -50,14 +50,4 @@ public interface ExpressionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNegation(ExpressionParser.NegationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ExpressionParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void enterVariable(ExpressionParser.VariableContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ExpressionParser#variable}.
-	 * @param ctx the parse tree
-	 */
-	void exitVariable(ExpressionParser.VariableContext ctx);
 }

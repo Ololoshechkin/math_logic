@@ -18,13 +18,10 @@ conjunction returns [NodeWrapper node]
     | conj1=conjunction AND neg1=negation {$node = new Conjunction($conj1.node, $neg1.node);}
     ;
 negation returns [NodeWrapper node]
-    : var=variable {$node = $var.node;}
+    : VAR {$node = new Letter($VAR.text);}
     | '(' exp=expression ')' {$node = $exp.node;}
     | NOT neg=negation {$node = new Negation($neg.node);}
     ;
-
-variable returns [NodeWrapper node] : VAR {$node = new Letter($VAR.text);};
-
 
 IMPL : '->';
 OR : '|';
