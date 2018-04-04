@@ -7,10 +7,10 @@ import java.io.File
 //val deltaTime = { (time() - st) / 1000.0 }
 
 fun main(args: Array<String>) {
-//    File("files/output.txt").bufferedWriter().use { output ->
-//        val lines = File("/Users/Vadim/Downloads/17.in").readLines()
-    File("output.txt").bufferedWriter().use { output ->
-        val lines = File("input.txt").readLines()
+    File("files/output.txt").bufferedWriter().use { output ->
+        val lines = File("/Users/Vadim/Documents/mathlog/hw0Make/17.in").readLines()
+//    File("output.txt").bufferedWriter().use { output ->
+//        val lines = File("input.txt").readLines()
         for (index in 0 until lines.size)  {
             val line = lines[index]
             if (!line.isEmpty()) {

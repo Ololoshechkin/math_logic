@@ -1,3 +1,4 @@
+import hw0.*
 import java.io.File
 
 fun extractSufix(s: String): String =
@@ -9,7 +10,7 @@ fun isMP(s: String) = s.startsWith("(M.P.")
 
 fun getNmbrs(s: String) = s.removePrefix("(M.P.").removeSuffix(")").split(",").map(String::toInt)
 
-fun main(args: Array<String>) {
+fun check16() {
     File("files/output.txt").useLines { lines ->
         val lines2 = File("/Users/Vadim/Downloads/10.out").readLines()
         lines.forEachIndexed { i, s ->
@@ -22,4 +23,23 @@ fun main(args: Array<String>) {
             }
         }
     }
+}
+
+fun NodeWrapper.toStr(): String = when (this) {
+    is Implication -> "(->, ${left.toStr()}, ${right.toStr()})"
+    is Disjunction -> "(|, ${left.toStr()}, ${right.toStr()})"
+    is Conjunction -> "(&, ${left.toStr()}, ${right.toStr()})"
+    is Negation -> "(!, ${child.toStr()})"
+    is Letter -> letter
+    else -> "###"
+}
+
+fun checkParser() {
+//    val expr = "A -> B -> C&D|(EX->F15)|G&N->H&M"
+    val expr = "P ->  ! QQ   ->!R10&S|!T&U&V"
+    expr.parse().toStr().let(::println)
+}
+
+fun main(args: Array<String>) {
+    checkParser()
 }
